@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dyl.domain.AuthorMapper">
+  <!-- 简单查询和集合查询的resultMap -->
+  <resultMap type="author" id="authorMap">
+  	<id column="author_id" property="id"/>
+  	<result column="author_name" property="name"/>
+  	<result column="author_email" property="email"/>
+  	<result column="author_gender" property="gender"/>
+  	<result column="author_address" property="address"/>
+  	<result column="author_self_description" property="selfDesc"/>
+  </resultMap>
+  <!-- 动态sql,if语句 -->
+  <select id="dynamicSqlSelect" resultMap="authorMap">
+  	select * from author a
+  	where a.author_gender = 'famale'
+  	<if test="_parameter!=null">
+  	and a.author_address like #{address}
+  	</if>
+  </select>
+  <!-- 动态sql,choose语句 -->
+  <select id="chooseSQL" resultMap="authorMap">
+  	select * from author a
+  	where a.author_address like '%China'
+  	<choose>
+  		<when test="_parameter != null">
+  			and a.author_email like #{email}
+  		</when>
+  		<otherwise>
+  			and a.author_id > 5
+  		</otherwise>
+  	</choose>
+  </select>
+  <!-- 动态sql,where语句 -->
+  <select id="whereSQL" resultMap="authorMap">
+  	<bind name="addr" value="'%'+addr"/>
+  	<bind name="eml" value="'%'+eml"/>
+  	select * from author a
+  	<where>
+  		<if test="addr!=null">
+  			a.author_address like #{addr}
+  		</if>
+  		<if test="eml!=null">
+  			and a.author_email like #{eml}
+  		</if>
+  	</where>
+  </select>
+  <!-- where条件还是出错，自定义trim语句 -->
+  <select id="trimSQL" resultMap="authorMap">
+  	select * from author a
+  	<trim prefix="where" prefixOverrides="and ">
+  		<if test="address!=null">
+  			a.author_address like #{address}
+  		</if>
+  		<if test="email!=null">
+  			and a.author_email like #{email}
+  		</if>
+  	</trim>
+  </select>
+  <!-- set动态更新列 -->
+  <update id="setSQL">
+  	update author a
+  	<set>
+  		<if test="name!=null">a.author_name = #{name},</if>
+  		<if test="email!=null">a.author_email = #{email},</if>
+  		<if test="gender!=null">a.author_gender = #{gender},</if>
+  		<if test="address!=null">a.author_address = #{address},</if>
+  		<if test="selfDesc!=null">a.author_self_description = #{selfDesc}</if>
+  	</set>
+  	where a.author_id = #{id}
+  </update>
+  <!-- 查询使用foreach -->
+  <select id="foreachSQL" resultMap="authorMap">
+  	select * from author a
+  	where a.author_id in
+  	<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+  		#{item}
+  	</foreach>
+  </select>
+</mapper>

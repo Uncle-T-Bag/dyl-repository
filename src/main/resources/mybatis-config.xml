@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+  
+<!-- mybatis全局配置文件 -->
+<configuration>
+  <!-- properties引入外部文件 -->
+  <!-- <properties resource="db.properties"/> -->
+  <!-- settings -->
+  <settings>
+  	  <setting name="cacheEnabled" value="true"/>
+	  <setting name="lazyLoadingEnabled" value="true"/>
+	  <setting name="multipleResultSetsEnabled" value="true"/>
+	  <setting name="useColumnLabel" value="true"/>
+	  <setting name="useGeneratedKeys" value="false"/>
+	  <setting name="autoMappingBehavior" value="PARTIAL"/>
+	  <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>
+	  <setting name="defaultExecutorType" value="SIMPLE"/>
+	  <setting name="defaultStatementTimeout" value="25"/>
+	  <setting name="defaultFetchSize" value="100"/>
+	  <setting name="safeRowBoundsEnabled" value="false"/>
+	  <setting name="mapUnderscoreToCamelCase" value="false"/>
+	  <setting name="localCacheScope" value="SESSION"/>
+	  <setting name="jdbcTypeForNull" value="OTHER"/>
+	  <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+  </settings>
+  <!-- typeAliases别名 -->
+  <typeAliases>
+  		<!-- <typeAlias type="com.dyl.domain.Goods" alias="goods"/> -->
+  		<package name="com.dyl.domain"/>
+  </typeAliases>
+  <!-- typeHandlers -->
+  <typeHandlers>
+  		<!-- <typeHandler javaType="String" jdbcType="VARCHAR" handler="com.dyl.mybatisTypeHandler.MyFirstMybatisTypeHandler"/> -->
+  		<typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler" javaType="com.dyl.enums.SaleStatus"/>
+  </typeHandlers>
+  <!-- <environments default="goods">
+    <environment id="goods">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="${mysql.DriverName}"/>
+        <property name="url" value="${mysql.Url}"/>
+        <property name="username" value="${mysql.UserName}"/>
+        <property name="password" value="${mysql.Password}"/>
+      </dataSource>
+    </environment>
+  </environments> -->
+  <!-- 引入映射器文件 -->
+  <!-- <mappers>
+    <mapper resource="mybatis/GoodsMapper.xml"/>
+    <mapper resource="mybatis/GoodsSaleStatus.xml"/>
+    <mapper resource="mybatis/BlogMapper.xml"/>
+    <mapper resource="mybatis/AuthorMapper.xml"/>
+  </mappers> -->
+</configuration>

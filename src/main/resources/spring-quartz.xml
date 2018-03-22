@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+            http://www.springframework.org/schema/beans/spring-beans.xsd  
+            http://www.springframework.org/schema/mvc  
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd  
+            http://www.springframework.org/schema/context  
+            http://www.springframework.org/schema/context/spring-context.xsd"
+	default-lazy-init="true">
+	
+	<context:component-scan base-package="com.dyl.quartz"></context:component-scan>
+	<!-- spring提供工程来生成quartz的核心组件 -->
+	<!-- 配置jobDetail,使用MethodInvokingJobDetailFactoryBean工厂 -->
+	<bean id="simpleJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="myQuartzBean"/>
+		<property name="targetMethod" value="sysoutMethod"/>
+	</bean>
+	<!-- 配置jobDetail,使用JobDetailFactoryBean工厂 -->
+	<bean id="cornJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="com.dyl.quartz.SpringQuartzJob"/>
+		<property name="jobDataMap">
+			<map>
+				<entry key="jobDataMap" value-ref="jobDataMapBean"/>
+			</map>
+		</property>
+		<property name="Durability" value="true"/>
+	</bean>
+	
+	<!-- 配置simpleTrigger -->
+	<bean id="simpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="simpleJobDetail"/>
+		<property name="startDelay" value="1000"/><!-- 延迟一秒后执行任务 -->
+		<property name="repeatInterval" value="2000"/><!--每隔两秒钟执行一次 -->
+	</bean>
+	<!-- 配置cronTrigger-->
+	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="cornJobDetail"/>
+		<property name="cronExpression" value="0/5 * * ? * *"/>
+	</bean>
+	
+	<!-- 配置Scheduler-->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobDetails">
+			<list>
+				<ref bean="simpleJobDetail"/>
+				<ref bean="cornJobDetail"/>
+			</list>
+		</property>
+		<property name="triggers">
+			<list>
+				<ref bean="simpleTrigger"/>
+				<ref bean="cronTrigger"/>
+			</list>
+		</property>
+	</bean>
+</beans>

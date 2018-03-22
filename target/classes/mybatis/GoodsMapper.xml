@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dyl.domain.GoodsMapper">
+  <!-- resultmap -->
+  <resultMap type="goods" id="goodslist">
+  	<id column="id" property="id"/>
+  	<result column="good_name" property="goodName"/>
+  	<result column="good_price" property="goodPrice"/>
+  	<result column="good_desc" property="description"/>
+  	<result column="good_num" property="goodNumber"/>
+  	<result column="good_createP" property="madeCountry"/>
+  	<result column="good_createT" property="createTime"/>
+  	<result column="good_updateT" property="updateTime"/>
+  	<result column="flag" property="flag"/>
+  </resultMap>
+  <!-- select语句 -->
+  <select id="selectSingleGoods" resultMap="goodslist">
+    select 
+    	id ,
+    	good_name ,
+    	good_price ,
+    	good_desc ,
+    	good_num ,
+    	good_createP ,
+    	good_createT ,
+    	good_updateT ,
+    	flag flag
+    from goods 
+    where 
+    	id = #{id}
+  </select>
+  <!-- insert语句 -->
+  <insert id="createGoods" parameterType="goods" useGeneratedKeys="true" keyProperty="id">
+  	insert into goods(good_name,good_price,good_desc,good_num,
+  				 good_createP,good_createT,good_updateT,flag)
+  	values(
+  		#{goodName},
+  		#{goodPrice},
+  		#{description},
+  		#{goodNumber},
+  		#{madeCountry},
+  		#{createTime},
+  		#{updateTime},
+  		#{flag}
+  	)
+  </insert>
+  <!-- update语句 -->
+  <update id="updateGoods" parameterType="goods">
+  	update goods set
+  		good_name = #{goodName},
+  		good_price = #{goodPrice},
+  		good_desc = #{description},
+  		good_num = #{goodNumber},
+  		good_createP = #{madeCountry},
+  		good_createT = #{createTime},
+  		good_updateT = #{updateTime},
+  		flag = #{flag}
+  	where id = #{id}
+  </update>
+  <!-- delete语句 -->
+  <delete id="deleteGoods">
+  	delete from goods where id = #{id}
+  </delete>
+  <!-- 查询集合 -->
+  <select id="selectGoodsList" resultMap="goodslist">
+  	select * from goods;
+  </select>
+</mapper>

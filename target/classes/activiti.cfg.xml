@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+            http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- spring整合Activiti -->
+	<!-- processEngineConfiguration -->
+  	<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+	    <!-- 整合spring配置文件的数据源 -->
+	    <property name="dataSource" ref="dataSource" />
+	    <property name="databaseType" value="mysql"></property>
+	    <!-- 整合spring的事物 -->
+	    <property name="transactionManager" ref="transactionManager" />
+	    <!-- 设置建表策略，自动创建表 -->
+	    <property name="databaseSchemaUpdate" value="true" />
+	    <!-- <property name="jobExecutorActivate" value="false" /> -->
+  	</bean>
+	<!-- processEngine -->
+  	<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+    	<property name="processEngineConfiguration" ref="processEngineConfiguration" />
+  	</bean>
+	<!-- 使用Activit自带的service -->
+	<bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
+	<bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
+	<bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
+	<bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
+	<bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
+	<bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
+	<bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
+</beans>

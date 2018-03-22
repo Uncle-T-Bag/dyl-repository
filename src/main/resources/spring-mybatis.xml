@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+            http://www.springframework.org/schema/beans/spring-beans.xsd  
+            http://www.springframework.org/schema/mvc  
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd  
+            http://www.springframework.org/schema/context  
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/data/jpa 
+            http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+            http://mybatis.org/schema/mybatis-spring
+            http://mybatis.org/schema/mybatis-spring.xsd
+            http://www.springframework.org/schema/aop 
+            http://www.springframework.org/schema/aop/spring-aop.xsd"
+	default-lazy-init="true">
+	
+	<!-- spring整合mybatis -->
+	<!-- 添加扫描的包,过滤springmvc的注解扫描 -->
+	<context:component-scan base-package="com.dyl">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+	</context:component-scan>
+	<!-- 配置数据源 -->
+	<context:property-placeholder location="classpath:db.properties"/>
+	<!-- datasource -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="username" value="${mysql.UserName}"/>
+		<property name="password" value="${mysql.Password}"/>
+		<property name="driverClassName" value="${mysql.DriverName}"/>
+		<property name="url" value="${mysql.Url}"/>
+	</bean>
+	<!-- transcationManager -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+	<!-- 基于注解的事务 -->
+	<tx:annotation-driven/>
+	<!-- sqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <!-- configLocation指定mybatis-config.xml的位置 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!-- mapperLocations扫描mapper.xml配置文件 -->
+        <property name="mapperLocations" value="classpath:mybatis/*.xml"/>
+    </bean>
+    <!-- 扫描mapper接口，使其能够自动注入 -->
+    <mybatis:scan base-package="com.dyl.dao"/>
+    <!-- 配置aop管理事务 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">  
+        <tx:attributes>  
+        	<tx:method name="save*"   propagation="REQUIRED" />
+			<tx:method name="add*"    propagation="REQUIRED" />
+			<tx:method name="create*" propagation="REQUIRED" />
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="merge*"  propagation="REQUIRED" />
+			<tx:method name="del*"    propagation="REQUIRED" />
+			<tx:method name="remove*" propagation="REQUIRED" />
+			<tx:method name="put*"    propagation="REQUIRED" />
+			<tx:method name="edit*"    propagation="REQUIRED" />
+            <tx:method name="*" propagation="SUPPORTS" read-only="true" />  
+        </tx:attributes>  
+    </tx:advice>
+    <aop:config>  
+        <aop:pointcut id="pointCut" expression="execution(* com.dyl.services.impl.*.*(..))" />  
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointCut" />  
+    </aop:config> 
+    <!-- 引入activiti.cfg.xml -->
+    <import resource="classpath:activiti.cfg.xml"/>
+</beans>

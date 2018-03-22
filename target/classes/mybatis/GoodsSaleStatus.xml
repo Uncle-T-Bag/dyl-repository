@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dyl.domain.GoodsSaleStatusMapper">
+  <!-- insert语句 -->
+  <insert id="insertSql" parameterType="goodSaleStatus">
+  	insert into sale_status(good_id,sale_status)
+  	values(
+  		#{goodsId},
+  		#{saleStatus, typeHandler=org.apache.ibatis.type.EnumOrdinalTypeHandler}
+  	)
+  </insert>
+</mapper>

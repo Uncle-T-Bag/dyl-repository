@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+            http://www.springframework.org/schema/beans/spring-beans.xsd  
+            http://www.springframework.org/schema/mvc  
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd  
+            http://www.springframework.org/schema/context  
+            http://www.springframework.org/schema/context/spring-context.xsd"
+	default-lazy-init="true">
+
+	<!-- 通过mvc:resources设置静态资源，这样servlet就会处理这些静态资源，而不通过控制器 -->
+	<mvc:resources location="/*.html" mapping="/**.html" />
+	<mvc:resources location="/css/*" mapping="/css/**" />
+	<mvc:resources location="/js/*" mapping="/js/**" />
+	<mvc:resources location="/images/*" mapping="/images/**" />
+	<mvc:resources location="/fonts/*" mapping="/fonts/**"/>
+	<mvc:resources location="/img/*" mapping="/img/**"></mvc:resources>
+	<!-- 设定消息转换的编码为utf-8防止controller返回中文乱码 -->
+	<!-- <bean
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<bean
+					class="org.springframework.http.converter.StringHttpMessageConverter">
+					<property name="supportedMediaTypes">
+						<list>
+							<value>text/html;charset=UTF-8</value>
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean> -->
+	<!-- 添加注解驱动 -->
+	<mvc:annotation-driven />
+	
+	<!-- 自定义的日期类型转换器 -->
+	<!-- <mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+	
+	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<set>
+				<ref bean="dateConverter"/>
+			</set>
+		</property>
+	</bean>  -->
+	
+	<!-- 默认扫描的包路径 -->
+	<context:component-scan base-package="com.dyl" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+	</context:component-scan>
+
+	<!-- mvc:view-controller可以在不需要Controller处理request的情况，转向到设置的View -->
+	<!-- 像下面这样设置，如果请求为/，则不通过controller，而直接解析为/index.jsp -->
+	<mvc:view-controller path="/" view-name="index" />
+	
+	<!-- 默认处理JSP的InternalResourceViewResolver-->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	<!-- UrlBasedViewResolver -->
+	<!-- <bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView"></property>
+		配置jsp路径前缀
+		<property name="prefix" value="/views/"></property>
+		配置URl后缀
+		<property name="suffix" value=".jsp"></property>
+	</bean> -->
+	
+	<!-- 配置BeanNameViewResolver,通过视图名字来解析视图
+		 注意：前面配置了默认的视图解析器，这里是特殊的，通过order来控制优先级，order值越大，有限级别越低
+	 -->
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="100"/>
+	</bean>
+	
+	<!-- 国际化资源文件的配置 -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="i18n"/>
+	</bean>
+	
+	<!-- 实现超链接点击切换Locale，他需要 SessionLocaleResolver和LocaleChangeInterceptor配合使用-->
+	<!-- 配置SessionLocaleResolver -->
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></bean>
+	<!-- 配置LocaleChangeInterceptor拦截器 -->
+	<mvc:interceptors>
+		<!-- 自定义的拦截器 -->
+		<!-- <bean class="com.dyl.interceptors.FirstTestInterceptor"></bean> -->
+		<!-- 指定特殊任务的拦截器 -->
+		<!-- <mvc:interceptor>
+			只对/emp/list请求路径进行拦截
+			<mvc:mapping path="/emp/list"/>
+			<bean class="com.dyl.interceptors.SecondTestInterceptor"></bean>
+		</mvc:interceptor> -->
+		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"></bean>
+	</mvc:interceptors>
+	
+	<!-- 文件上传 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8"/>
+		<property name="maxUploadSize" value="10485760000"/>
+		<property name="maxInMemorySize" value="40960"/>
+	</bean>
+</beans>

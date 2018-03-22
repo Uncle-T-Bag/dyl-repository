@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dyl.dao.BlogMapper">
+  <!-- <cache type="com.dyl.cache.redis.RedisCache"/> -->
+  <!-- 关联查询的resultMap -->
+  <resultMap type="blog" id="blog">
+  	<id column="blog_id" property="id"/>
+  	<result column="blog_title" property="title"/>
+  	<association property="author" column="author_id" javaType="author" select="selectAuthor"/>
+  </resultMap>
+  <resultMap type="author" id="author">
+  	<id column="author_id" property="id"/>
+  	<result column="author_name" property="name"/>
+  	<result column="author_email" property="email"/>
+  	<result column="author_gender" property="gender"/>
+  	<result column="author_address" property="address"/>
+  	<result column="author_self_description" property="selfDesc"/>
+  </resultMap>
+  <!-- 关联查询 -->
+  <select id="getBlogById" resultMap="blog">
+  	select * from blog where blog_id = #{id} 
+  </select>
+  <!-- 嵌套查询关联对象author -->
+  <select id="selectAuthor" resultMap="author">
+  	select * from author where author_id = #{id}
+  </select>
+  
+  <resultMap type="blog" id="blogNew">
+  	<id column="blog_id" property="id"/>
+  	<result column="blog_title" property="title"/>
+  	<result column="status" property="status"/>
+  	<association property="author" column="blog_author_id" javaType="author" resultMap="author"/>
+  </resultMap>
+  <!-- 对关联查询的改进方案 -->
+  <select id="selectBlogWithAuthor" resultMap="blogNew">
+  	select 
+  		b.blog_id as blog_id,
+  		b.blog_title as blog_title,
+  		b.status as status,
+  		b.author_id as blog_author_id,
+  		a.author_id as author_id,
+  		a.author_name as author_name,
+  		a.author_email as author_email,
+  		a.author_gender as author_gender,
+  		a.author_address as author_address,
+  		a.author_self_description as author_self_description
+  	from blog b left outer join author a on b.author_id = a.author_id
+  	where b.blog_id = #{id}
+  </select>
+  <!-- 查询多个关联属性（集合） -->
+  <select id="selectCollection" resultMap="selectBlogWithList">
+  	select 
+  		b.blog_id as blog_id,
+  		b.blog_title as blog_title,
+  		b.status as status,
+  		b.author_id as blog_author_id,
+  		a.author_id as author_id,
+  		a.author_name as author_name,
+  		a.author_email as author_email,
+  		a.author_gender as author_gender,
+  		a.author_address as author_address,
+  		a.author_self_description as author_self_description,
+  		p.post_id as post_id,
+  		p.post_blog_id as post_blogId,
+  		p.post_subject as post_subject,
+  		p.post_body as post_body
+  	from blog b 
+  	left outer join author a on b.author_id = a.author_id
+  	left outer join post p on b.blog_id = p.post_blog_id
+  	where b.blog_id = #{id}
+  </select>
+  <resultMap type="blog" id="selectBlogWithList">
+  	<id column="blog_id" property="id"/>
+  	<result column="blog_title" property="title"/>
+  	<result column="status" property="status"/>
+  	<association property="author" column="blog_author_id" javaType="author" resultMap="author"/>
+  	<!-- 使用collection标签查询集合关联属性 -->
+  	<collection property="posts" ofType="post" resultMap="post" ></collection>
+  </resultMap>
+  <resultMap type="post" id="post">
+  	<id column="post_id" property="id"></id>
+  	<result column="blog_id" property="blogId"/>
+  	<result column="post_subject" property="subject"/>
+  	<result column="post_body" property="body"/>
+  </resultMap>
+</mapper>
